@@ -5,8 +5,12 @@
     let selected_index = null;
 
     function select_index(index) {
-        selected_index = selected_index === index
-            ? null : index;
+        // you cannot go directly from one selection to another
+        if (selected_index === null) {
+            selected_index = index;
+        } else if (selected_index === index) {
+            selected_index = null;
+        }
     }
 
     $: show_arrow = (index) => {
@@ -15,7 +19,24 @@
             || selected_index === index - 1);
     };
 
-    const items =  [
+    function click_arrow(move_to_index) {
+        console.log('click', move_to_index);
+        const without_selected = items.filter((_, index) => index !== selected_index);
+        const item_to_move = items[selected_index];
+        // when moving down, take account that the item is already removed
+        const place_item_at = move_to_index > selected_index ? move_to_index - 1 : move_to_index;
+
+        items = [
+            ...without_selected.slice(0, place_item_at),
+            item_to_move,
+            ...without_selected.slice(place_item_at),
+        ];
+        console.log(items)
+
+        selected_index = null;
+    }
+
+    let items =  [
         {text: "The Fifth Element", value: 1997},
         {text: "Die Hard", value: 1988},
         {text: "Pulp Fiction", value: 1994},
@@ -43,6 +64,7 @@
         position: relative;
         height: 2.5em;
         background: rgb(217, 255, 0);
+        z-index: 1;
     }
     .arrow::before {
         width: 0;
@@ -68,7 +90,13 @@
 
 <div class=grid-container>
     {#each items as item, index (item.text)}
-        <div class={show_arrow(index) && 'arrow left'}></div>
+        {#if show_arrow(index)}
+            <div on:click={() => click_arrow(index)}
+                class='arrow left'></div>
+        {:else}
+            <div></div>
+        {/if}
+
 
         <button class='button is-rounded is-block work-for-long-text no-border'
             class:is-primary={selected_index === null || selected_index === index}
@@ -76,9 +104,27 @@
             {item.text}
         </button>
 
-        <div class={show_arrow(index) && 'arrow right'}></div>
+        {#if show_arrow(index)}
+            <div on:click={() => click_arrow(index)}
+                class='arrow right'></div>
+        {:else}
+            <div></div>
+        {/if}
     {/each}
-        <div class={show_arrow(items.length) && 'arrow left'}></div>
+        {#if show_arrow(items.length)}
+            <div on:click={() => click_arrow(items.length)}
+                class='arrow left'></div>
+        {:else}
+            <div></div>
+        {/if}
+
+
         <div></div>
-        <div class={show_arrow(items.length) && 'arrow right'}></div>
+
+        {#if show_arrow(items.length)}
+            <div on:click={() => click_arrow(items.length)}
+                class='arrow right'></div>
+        {:else}
+            <div></div>
+        {/if}
 </div>
