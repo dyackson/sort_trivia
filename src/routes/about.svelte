@@ -32,7 +32,7 @@
     let scrollable;
 
     function onScroll(event) {
-        const element = scrollable;
+        const element = event.target;
         console.log({
             scrollHeight: element.scrollHeight,
             scrollTop: element.scrollTop,

@@ -63,8 +63,10 @@
         top: -2.3em;
         position: relative;
         height: 2.5em;
-        background: rgb(217, 255, 0);
+        background: #cbcbcb;
         z-index: 1;
+        cursor: pointer;
+        max-width: 40px;
     }
     .arrow::before {
         width: 0;
@@ -76,11 +78,11 @@
         top: -0.5em;
     }
     .arrow.right::before {
-        border-color: transparent rgb(217, 255, 0) transparent transparent;
+        border-color: transparent #cbcbcb transparent transparent;
         right: 1.5em;
     }
     .arrow.left::before {
-        border-color: transparent transparent transparent rgb(217, 255, 0);
+        border-color: transparent transparent transparent #cbcbcb;
         left: 1.5em;
     }
     .no-border {
@@ -88,42 +90,52 @@
     }
 </style>
 
+<section class='section py-2'>
+    <div class=container>
+        <h2 class=subtitle>
+            {prompt}
+        </h2>
+    </div>
+</section>
+
 <div class=grid-container>
     {#each items as item, index (item.text)}
         {#if show_arrow(index)}
             <div on:click={() => click_arrow(index)}
-                class='arrow left'></div>
+                class='button arrow left'></div>
         {:else}
             <div></div>
         {/if}
 
 
         <button class='button is-rounded is-block work-for-long-text no-border'
-            class:is-primary={selected_index === null || selected_index === index}
+            class:is-dark={selected_index === null || selected_index === index}
+            disabled={selected_index !== null && selected_index !== index}
             on:click={() => select_index(index)}>
             {item.text}
         </button>
 
         {#if show_arrow(index)}
             <div on:click={() => click_arrow(index)}
-                class='arrow right'></div>
+                class='button arrow right'></div>
         {:else}
             <div></div>
         {/if}
     {/each}
         {#if show_arrow(items.length)}
             <div on:click={() => click_arrow(items.length)}
-                class='arrow left'></div>
+                class='button arrow left'></div>
         {:else}
             <div></div>
         {/if}
 
 
+        <!-- Empty div as placeholder -->
         <div></div>
 
         {#if show_arrow(items.length)}
             <div on:click={() => click_arrow(items.length)}
-                class='arrow right'></div>
+                class='button arrow right'></div>
         {:else}
             <div></div>
         {/if}
