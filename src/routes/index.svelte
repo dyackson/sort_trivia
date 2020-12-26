@@ -1,4 +1,7 @@
 <script>
+	  import { flip } from 'svelte/animate';
+    import {cubicInOut, cubicOut, cubicIn} from 'svelte/easing';
+
     const prompt = `Put these Bruce Willis Movies in order by the year they were
         released, earliest first.`
 
@@ -19,7 +22,10 @@
             || selected_index === index - 1);
     };
 
-    function click_arrow(move_to_index) {
+    function move_selected_to(move_to_index) {
+        if (!show_arrow(move_to_index)) {
+            return;
+        }
         console.log('click', move_to_index);
         const without_selected = items.filter((_, index) => index !== selected_index);
         const item_to_move = items[selected_index];
@@ -52,41 +58,17 @@
         white-space: normal;
     }
 
-    .grid-container {
-        display: grid;
-        grid-template-columns: 1fr 10fr 1fr;
-        row-gap: 1.8em;
-        column-gap: 0em;
-        margin-top: 2.3em;
+    .flex-column {
+        display: flex;
+        flex-direction: column;
     }
-    .arrow {
-        top: -2.3em;
-        position: relative;
-        height: 2.5em;
-        background: #cbcbcb;
-        z-index: 1;
-        cursor: pointer;
-        max-width: 40px;
-    }
-    .arrow::before {
-        width: 0;
-        height: 0;
-        border-width: 1.8em 4em;
-        border-style: solid;
-        content: '';
-        position: absolute;
-        top: -0.5em;
-    }
-    .arrow.right::before {
-        border-color: transparent #cbcbcb transparent transparent;
-        right: 1.5em;
-    }
-    .arrow.left::before {
-        border-color: transparent transparent transparent #cbcbcb;
-        left: 1.5em;
-    }
-    .no-border {
+
+    .invisible {
         border: none;
+        background: transparent;
+    }
+    .with-margin {
+        margin: 0 .5em;
     }
 </style>
 
@@ -98,45 +80,28 @@
     </div>
 </section>
 
-<div class=grid-container>
+<div class='flex-column with-margin'>
     {#each items as item, index (item.text)}
-        {#if show_arrow(index)}
-            <div on:click={() => click_arrow(index)}
-                class='button arrow left'></div>
-        {:else}
-            <div></div>
-        {/if}
+        <div class=flex-column
+            animate:flip={{duration: 700, easing: cubicInOut}}>
 
+            <div class='button is-rounded invisible'
+                class:is-hovered={show_arrow(index)}
+                on:click={() => move_selected_to(index)}
+                hidden={!show_arrow(index)}></div>
 
-        <button class='button is-rounded is-block work-for-long-text no-border'
-            class:is-dark={selected_index === null || selected_index === index}
-            disabled={selected_index !== null && selected_index !== index}
-            on:click={() => select_index(index)}>
-            {item.text}
-        </button>
+            <button
+                class='button is-rounded work-for-long-text m-0'
+                disabled={selected_index !== null && selected_index !== index}
+                on:click={() => select_index(index)}>
+                {item.text}
+            </button>
+        </div>
 
-        {#if show_arrow(index)}
-            <div on:click={() => click_arrow(index)}
-                class='button arrow right'></div>
-        {:else}
-            <div></div>
-        {/if}
     {/each}
-        {#if show_arrow(items.length)}
-            <div on:click={() => click_arrow(items.length)}
-                class='button arrow left'></div>
-        {:else}
-            <div></div>
-        {/if}
 
-
-        <!-- Empty div as placeholder -->
-        <div></div>
-
-        {#if show_arrow(items.length)}
-            <div on:click={() => click_arrow(items.length)}
-                class='button arrow right'></div>
-        {:else}
-            <div></div>
-        {/if}
+    <div class='button m-0 is-rounded invisible'
+        class:is-hovered={show_arrow(items.length)}
+        on:click={() => move_selected_to(items.length)}
+        hidden={!show_arrow(items.length)}></div>
 </div>
